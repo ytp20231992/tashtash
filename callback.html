@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>로그인 처리 중...</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      text-align: center;
+    }
+    .container { padding: 40px; }
+    h1 { font-size: 28px; margin-bottom: 16px; }
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🏠 로그인 처리 중...</h1>
+    <div class="spinner"></div>
+    <p>잠시만 기다려주세요</p>
+  </div>
+
+  <script>
+    // URL에서 authorization code 추출
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const error = params.get('error');
+    
+    if (code) {
+      console.log('Authorization code 받음:', code);
+      
+      // Extension으로 전송 (window.opener 사용)
+      if (window.opener) {
+        window.opener.postMessage({
+          type: 'KAKAO_AUTH_CODE',
+          code: code
+        }, '*');
+        
+        // 메시지 전송 후 창 닫기
+        setTimeout(() => window.close(), 500);
+      } else {
+        alert('로그인 창을 찾을 수 없습니다. 다시 시도해주세요.');
+      }
+    } else if (error) {
+      console.error('로그인 오류:', error);
+      alert('로그인에 실패했습니다: ' + error);
+      window.close();
+    } else {
+      console.error('Code 또는 Error 파라미터가 없습니다');
+      alert('잘못된 접근입니다.');
+      window.close();
+    }
+  </script>
+</body>
+</html>
